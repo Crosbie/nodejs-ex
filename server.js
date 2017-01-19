@@ -83,7 +83,9 @@ app.get('/pagecount', function (req, res) {
   // try to initialize the db on every request if it's not already
   // initialized.
   if (!db) {
-    initDb(function(err){});
+    initDb(function(err){
+      console.error('error connecting to mongo',err);
+    });
   }
   if (db) {
     db.collection('counts').count(function(err, count ){
