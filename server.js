@@ -4,7 +4,7 @@ var express = require('express'),
     app     = express(),
     eps     = require('ejs'),
     morgan  = require('morgan');
-    
+
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
@@ -77,6 +77,11 @@ app.get('/', function (req, res) {
   } else {
     res.render('index.html', { pageCountMessage : null});
   }
+});
+
+app.post('/datain',function(req,res){
+  console.log('data-in',req.body);
+  res.send({'status':'ok'});
 });
 
 app.get('/pagecount', function (req, res) {
