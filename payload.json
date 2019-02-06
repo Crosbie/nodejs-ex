@@ -1,0 +1,6 @@
+{"app_id":"tdpilot","dev_id":"siteaquarium","hardware_serial":"000DB5340670365B","port":2,"counter":60053,"payload_raw":"AQmpCVAEEQ==","metadata":{"time":"2019-02-06T14:08:55.280185115Z","frequency":867.9,"modulation":"LORA","data_rate":"SF12BW125","coding_rate":"4/5","gateways":[{"gtw_id":"hslu-lora-rosu01","gtw_trusted":true,"timestamp":1955203300,"time":"2019-02-06T14:08:55Z","channel":7,"rssi":-108,"snr":0.5,"rf_chain":0,"latitude":47.14535,"longitude":8.438733,"altitude":450,"location_source":"registry"}]},"downlink_url":"https://integrations.thethingsnetwork.org/ttn-eu/api/v2/down/tdpilot/testing?key=ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og"}
+
+
+
+
+// 01 09 A9 09 50 04 11

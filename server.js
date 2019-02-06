@@ -4,7 +4,9 @@ var express = require('express'),
     app     = express(),
     eps     = require('ejs'),
     morgan  = require('morgan');
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    _ = require('underscore'),
+    atob = require("atob");
 
 Object.assign=require('object-assign')
 
@@ -83,9 +85,94 @@ app.get('/', function (req, res) {
   }
 });
 
+
+// Temperature Threshold
+function tempThreshold(temp){
+  if(temp >= 19 && temp <= 23.9){
+    return 0;
+  } else if(temp >= 15.1 && temp <=25.9){
+    return 1;
+  } else
+    return 2;
+}
+
+function co2Threshold(value){
+  if(value <= 799){
+    return 0;
+  } else if(value <= 1199){
+    return 1;
+  } else
+    return 2;
+}
+
+
+// ---- Conversion
+// var indata = "AQmpCVAEEQ==";
+// var output = "";
+// console.log('Convert data!');
+
+// console.log('in',indata);
+
+// output = toHexString(Uint8Array.from(atob(indata), c => c.charCodeAt(0)))
+function base64toHEX(base64) {
+  var raw = atob(base64);
+  var HEX = '';
+  var hx = [];
+
+  for ( i = 0; i < raw.length; i++ ) {
+    var _hex = raw.charCodeAt(i).toString(16)
+    HEX += (_hex.length==2?_hex:'0'+_hex);
+    // hx.push(_hex.length==2?_hex:'0'+_hex);
+  }
+  return HEX.toUpperCase();
+  // return hx;
+}
+
+// output = base64toHEX(indata);
+
+// console.log(1,output);
+
+
+
+
+// out = 01 09 A9 09 50 04 11
+// ------------
+
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
-  res.send({'status':'ok'});
+
+  var rawPayload = req.body&&req.body.payload || 'AQmpCVAEEQ==';
+  var site = req.body&&req.body.dev_id;
+  var data = base64toHEX(rawPayload);
+
+  /*  example data: 01 09 A9 09 50 04 11
+      data format TT XXXX YYYY ZZZZ
+      TT = device type
+      XXXX = temperature
+      YYYY = humidity
+      ZZZZ = CO2 ppm
+
+  */
+
+  var type = data.slice(0,2);
+  var temp = parseInt(data.slice(2,6),16);
+  var humid = parseInt(data.slice(6,10),16);
+  var co2 = parseInt(data.slice(10,14),16);
+
+  var tempAlert = tempThreshold(temp/100);
+  var cAlert = co2Threshold(co2);
+
+  var obj = {
+    site: site,
+    type: type,
+    temperature: temp/100 + ' \'C',
+    humidity: humid/100 + ' %',
+    co2: co2 + ' PPM',
+    tempAlert: tempAlert,
+    co2Alert: cAlert
+  }
+  console.log('data', obj);
+  res.send({'status':'ok','data':obj});
 });
 
 app.get('/pagecount', function (req, res) {
