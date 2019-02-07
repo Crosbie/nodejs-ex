@@ -86,6 +86,16 @@ app.get('/', function (req, res) {
 });
 
 
+// Switch light on/off depending on value (1/0)
+function switchLight(value){
+  console.log('Light is ', value);
+
+  // request('http://192.168.230.11/realy?state='+ value,function(){
+  //   console.log('turned switch to ', value);
+  // });
+}
+
+
 // Temperature Threshold
 function tempThreshold(temp){
   if(temp >= 19 && temp <= 23.9){
@@ -108,32 +118,17 @@ function co2Threshold(value){
 
 // ---- Conversion
 // var indata = "AQmpCVAEEQ==";
-// var output = "";
-// console.log('Convert data!');
 
-// console.log('in',indata);
-
-// output = toHexString(Uint8Array.from(atob(indata), c => c.charCodeAt(0)))
 function base64toHEX(base64) {
   var raw = atob(base64);
   var HEX = '';
-  var hx = [];
 
   for ( i = 0; i < raw.length; i++ ) {
     var _hex = raw.charCodeAt(i).toString(16)
     HEX += (_hex.length==2?_hex:'0'+_hex);
-    // hx.push(_hex.length==2?_hex:'0'+_hex);
   }
   return HEX.toUpperCase();
-  // return hx;
 }
-
-// output = base64toHEX(indata);
-
-// console.log(1,output);
-
-
-
 
 // out = 01 09 A9 09 50 04 11
 // ------------
@@ -161,6 +156,14 @@ app.post('/datain',function(req,res){
 
   var tempAlert = tempThreshold(temp/100);
   var cAlert = co2Threshold(co2);
+
+  if(cAlert === 2){
+    // turn on light
+    switchLight(1);
+  } else {
+    // turn off light
+    switchLight(0);
+  }
 
   var obj = {
     site: site,
