@@ -6,7 +6,8 @@ var express = require('express'),
     morgan  = require('morgan');
     bodyParser = require('body-parser'),
     _ = require('underscore'),
-    atob = require("atob");
+    atob = require("atob"),
+    request = require('request');
 
 Object.assign=require('object-assign')
 
@@ -87,12 +88,30 @@ app.get('/', function (req, res) {
 
 
 // Switch light on/off depending on value (1/0)
-function switchLight(value){
-  console.log('Light is ', value);
+function switchLightAquarium(value){
+  console.log('Switching Aquarium Light to ', value);
 
-  // request('http://192.168.230.11/realy?state='+ value,function(){
-  //   console.log('turned switch to ', value);
-  // });
+  request('http://192.168.224.109/relay?state='+ value,function(err){
+    if(err){
+      console.error('error switching Aquarium',err);
+    } else {
+      console.log('turned Aquarium switch to ', value);
+    }
+  });
+}
+
+// Switch light on/off depending on value (1/0)
+function switchLightIBM(value){
+  console.log('Switching IBM Light to ', value);
+
+  request('http://192.168.224.110/relay?state='+ value,function(err){
+    if(err){
+      console.error('error switching IBM',err);
+    } else {
+      console.log('turned IBM switch to ', value);
+    }
+
+  });
 }
 
 
@@ -157,25 +176,41 @@ app.post('/datain',function(req,res){
   var tempAlert = tempThreshold(temp/100);
   var cAlert = co2Threshold(co2);
 
-  if(cAlert === 2){
-    // turn on light
-    switchLight(1);
-  } else {
-    // turn off light
-    switchLight(0);
-  }
 
   var obj = {
     site: site,
     type: type,
-    temperature: temp/100 + ' \'C',
+    temperature: temp/100 + 'c',
     humidity: humid/100 + ' %',
     co2: co2 + ' PPM',
     tempAlert: tempAlert,
     co2Alert: cAlert
   }
-  console.log('data', obj);
+  console.log('data-out', obj);
+  // return to user before firing message to switch
   res.send({'status':'ok','data':obj});
+
+
+  if(site === 'officeibm'){
+    if(cAlert === 2){
+      // turn on light
+      switchLightIBM(1);
+    } else {
+      // turn off light
+      switchLightIBM(0);
+    }
+  }
+
+  if(site === 'siteaquarium'){
+    if(cAlert === 2){
+      // turn on light
+      switchLightAquarium(1);
+    } else {
+      // turn off light
+      switchLightAquarium(0);
+    }
+  }
+
 });
 
 app.get('/pagecount', function (req, res) {
