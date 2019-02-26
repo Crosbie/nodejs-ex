@@ -7,7 +7,8 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     _ = require('underscore'),
     atob = require("atob"),
-    request = require('request');
+    request = require('request'),
+    CronJob = require('cron').CronJob;
 
 Object.assign=require('object-assign')
 
@@ -213,6 +214,106 @@ app.post('/datain',function(req,res){
 
 });
 
+
+// access key
+// curl -X GET --header 'Accept: application/json' --header 'Authorization: key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og' 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=2m'
+// URL
+// https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=2m
+
+function fetchData(){
+  console.log('Fetching API Data...');
+  request({
+    method: 'GET',
+    url: 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=1m',
+    headers: {
+      Authorization: 'key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og'
+    }
+  },function(err,response,body){
+    if(err || response.status > 299){
+      console.error('Error fetching API data',err||body);
+    } else {
+      console.log('body',body);
+
+      body = body || [];
+
+      try{
+        body = JSON.parse(body);
+      } catch(err){
+        console.error('Error parsing JSON:',body, err);
+      }
+
+      _.each(body, function(item,index){
+        if(item.device_id === "siteaquarium" || item.device_id === "officeibm"){
+          processData(item);
+          return item;
+        }
+      })
+    }
+  })
+}
+
+function processData(data){
+   console.log('processData',data);
+
+  var rawPayload = data.raw || 'AQmpCVAEEQ==';
+  var site = data.device_id;
+  var data = base64toHEX(rawPayload);
+
+  /*  example data: 01 09 A9 09 50 04 11
+      data format TT XXXX YYYY ZZZZ
+      TT = device type
+      XXXX = temperature
+      YYYY = humidity
+      ZZZZ = CO2 ppm
+
+  */
+
+  var type = data.slice(0,2);
+  var temp = parseInt(data.slice(2,6),16);
+  var humid = parseInt(data.slice(6,10),16);
+  var co2 = parseInt(data.slice(10,14),16);
+
+  var tempAlert = tempThreshold(temp/100);
+  var cAlert = co2Threshold(co2);
+
+
+  var obj = {
+    site: site,
+    type: type,
+    temperature: temp/100 + 'c',
+    humidity: humid/100 + ' %',
+    co2: co2 + ' PPM',
+    tempAlert: tempAlert,
+    co2Alert: cAlert
+  }
+  console.log('data-out', obj);
+
+  if(site === 'officeibm'){
+    if(cAlert === 2){
+      // turn on light
+      switchLightIBM(1);
+    } else {
+      // turn off light
+      switchLightIBM(0);
+    }
+  }
+
+  if(site === 'siteaquarium'){
+    if(cAlert === 2){
+      // turn on light
+      switchLightAquarium(1);
+    } else {
+      // turn off light
+      switchLightAquarium(0);
+    }
+  }
+
+}
+
+
+// Fire Cron Job every minute
+new CronJob('* * * * *', fetchData).start();
+
 app.get('/pagecount', function (req, res) {
   // try to initialize the db on every request if it's not already
   // initialized.
@@ -242,5 +343,5 @@ initDb(function(err){
 
 app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
-
+fetchData();
 module.exports = app ;
