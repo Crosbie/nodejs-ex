@@ -236,18 +236,28 @@ function fetchData(){
 
       body = body || [];
 
-      try{
-        body = JSON.parse(body);
-      } catch(err){
-        console.error('Error parsing JSON:',body, err);
-      }
-
-      _.each(body, function(item,index){
-        if(item.device_id === "siteaquarium" || item.device_id === "officeibm"){
-          processData(item);
-          return item;
+      request({
+        url: 'https://i-data-in-route-sensor-monitor.apps.rhlab.ch/webhook/LvC6KnepKDHN3OWzCiGqctR6CPi7vb9AFPJqL3NTRGGd7ZxZ5P',
+        body: body,
+        rejectUnauthorized:false
+      },function(fuseErr){
+        if(fuseErr){
+          console.error('Error sending data to Fuse',fuseErr);
         }
-      })
+      });
+
+      // try{
+      //   body = JSON.parse(body);
+      // } catch(err){
+      //   console.error('Error parsing JSON:',body, err);
+      // }
+
+      // _.each(body, function(item,index){
+      //   if(item.device_id === "siteaquarium" || item.device_id === "officeibm"){
+      //     processData(item);
+      //     return item;
+      //   }
+      // })
     }
   })
 }
