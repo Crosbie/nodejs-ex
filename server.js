@@ -153,6 +153,10 @@ function base64toHEX(base64) {
 // out = 01 09 A9 09 50 04 11
 // ------------
 
+app.post('/test',function(req,res){
+  console.log('test endpoint',req.body);
+});
+
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
 
