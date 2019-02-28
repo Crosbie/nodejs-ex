@@ -155,6 +155,7 @@ function base64toHEX(base64) {
 
 app.post('/test',function(req,res){
   console.log('test endpoint',req.body);
+  res.send({status:'ok'});
 });
 
 app.post('/datain',function(req,res){
