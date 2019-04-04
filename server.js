@@ -161,18 +161,23 @@ app.post('/test',function(req,res){
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
 
+  try{
+    body = JSON.parse(req.body);
+  } catch(err){
+    console.error('Error parsing JSON:',body, err);
+  }
+
+  _.each(body, function(item,index){
+    if(item.device_id === "siteaquarium" || item.device_id === "officeibm"){
+      processData(item);
+      return item;
+    }
+  })
+ /*
   var rawPayload = req.body&&req.body.raw || 'AQmpCVAEEQ==';
   var site = req.body&&req.body.device_id;
   var data = base64toHEX(rawPayload);
 
-  /*  example data: 01 09 A9 09 50 04 11
-      data format TT XXXX YYYY ZZZZ
-      TT = device type
-      XXXX = temperature
-      YYYY = humidity
-      ZZZZ = CO2 ppm
-
-  */
 
   var type = data.slice(0,2);
   var temp = parseInt(data.slice(2,6),16);
@@ -216,7 +221,7 @@ app.post('/datain',function(req,res){
       switchLightAquarium(0);
     }
   }
-
+ */
 });
 
 
