@@ -105,7 +105,9 @@ function switchLightAquarium(value){
 function switchLightIBM(value){
   console.log('Switching IBM Light to ', value);
 
-  request('http://192.168.224.110/relay?state='+ value,function(err){
+  // 3scale URL: https://iot-switch-1-2445581831540.staging.gw.apicast.io
+  // base URL: http://192.168.224.110
+  request('https://iot-switch-1-2445581831540.staging.gw.apicast.io/relay?state='+ value,function(err){
     if(err){
       console.error('error switching IBM',err);
     } else {
@@ -153,11 +155,6 @@ function base64toHEX(base64) {
 // out = 01 09 A9 09 50 04 11
 // ------------
 
-app.post('/test',function(req,res){
-  console.log('test endpoint',req.body);
-  res.send({status:'ok'});
-});
-
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
 
@@ -173,104 +170,7 @@ app.post('/datain',function(req,res){
       return item;
     }
   })
- /*
-  var rawPayload = req.body&&req.body.raw || 'AQmpCVAEEQ==';
-  var site = req.body&&req.body.device_id;
-  var data = base64toHEX(rawPayload);
-
-
-  var type = data.slice(0,2);
-  var temp = parseInt(data.slice(2,6),16);
-  var humid = parseInt(data.slice(6,10),16);
-  var co2 = parseInt(data.slice(10,14),16);
-
-  var tempAlert = tempThreshold(temp/100);
-  var cAlert = co2Threshold(co2);
-
-
-  var obj = {
-    site: site,
-    type: type,
-    temperature: temp/100 + 'c',
-    humidity: humid/100 + ' %',
-    co2: co2 + ' PPM',
-    tempAlert: tempAlert,
-    co2Alert: cAlert
-  }
-  console.log('data-out', obj);
-  // return to user before firing message to switch
-  res.send({'status':'ok','data':obj});
-
-
-  if(site === 'officeibm'){
-    if(cAlert === 2){
-      // turn on light
-      switchLightIBM(1);
-    } else {
-      // turn off light
-      switchLightIBM(0);
-    }
-  }
-
-  if(site === 'siteaquarium'){
-    if(cAlert === 2){
-      // turn on light
-      switchLightAquarium(1);
-    } else {
-      // turn off light
-      switchLightAquarium(0);
-    }
-  }
- */
 });
-
-
-// access key
-// curl -X GET --header 'Accept: application/json' --header 'Authorization: key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og' 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=2m'
-// URL
-// https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=2m
-
-// function fetchData(){
-//   console.log('Fetching API Data...');
-//   request({
-//     method: 'GET',
-//     url: 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=1m',
-//     headers: {
-//       Authorization: 'key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og'
-//     }
-//   },function(err,response,body){
-//     if(err || response.status > 299){
-//       console.error('Error fetching API data',err||body);
-//     } else {
-//       console.log('body',body);
-
-//       body = body || [];
-
-//       request({
-//         url: 'https://i-data-in-route-sensor-monitor.apps.rhlab.ch/webhook/LvC6KnepKDHN3OWzCiGqctR6CPi7vb9AFPJqL3NTRGGd7ZxZ5P',
-//         body: body,
-//         rejectUnauthorized:false
-//       },function(fuseErr){
-//         if(fuseErr){
-//           console.error('Error sending data to Fuse',fuseErr);
-//         }
-//       });
-
-      // try{
-      //   body = JSON.parse(body);
-      // } catch(err){
-      //   console.error('Error parsing JSON:',body, err);
-      // }
-
-      // _.each(body, function(item,index){
-      //   if(item.device_id === "siteaquarium" || item.device_id === "officeibm"){
-      //     processData(item);
-      //     return item;
-      //   }
-      // })
-//     }
-//   })
-// }
 
 function processData(data){
    console.log('processData',data);
@@ -329,27 +229,6 @@ function processData(data){
   }
 
 }
-
-
-// Fire Cron Job every minute
-// new CronJob('* * * * *', fetchData).start();
-
-// app.get('/pagecount', function (req, res) {
-//   // try to initialize the db on every request if it's not already
-//   // initialized.
-//   if (!db) {
-//     initDb(function(err){
-//       console.error('error connecting to mongo',err);
-//     });
-//   }
-//   if (db) {
-//     db.collection('counts').count(function(err, count ){
-//       res.send('{ pageCount: ' + count + '}');
-//     });
-//   } else {
-//     res.send('{ pageCount: -1 }');
-//   }
-// });
 
 // error handling
 app.use(function(err, req, res, next){
