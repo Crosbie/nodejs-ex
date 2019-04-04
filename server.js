@@ -162,7 +162,7 @@ app.post('/datain',function(req,res){
   console.log('data-in',req.body);
 
   try{
-    body = JSON.parse(req.body);
+    body = req.body;
   } catch(err){
     console.error('Error parsing JSON:',body, err);
   }
