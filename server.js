@@ -107,9 +107,9 @@ function switchLightIBM(value){
 
   // 3scale URL: https://iot-switch-1-2445581831540.staging.gw.apicast.io
   // base URL: http://192.168.224.110
-  request('https://iot-switch-1-2445581831540.staging.gw.apicast.io/relay?state='+ value,function(err){
-    if(err){
-      console.error('error switching IBM',err);
+  request('https://iot-switch-1-2445581831540.staging.gw.apicast.io/relay?state='+ value,function(err, response){
+    if(err || response.status > 299){
+      console.error('error switching IBM',err || response);
     } else {
       console.log('turned IBM switch to ', value);
     }
@@ -157,7 +157,7 @@ function base64toHEX(base64) {
 
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
-  res.end();
+  res.json({status:'ok'});
 
   try{
     body = req.body;
