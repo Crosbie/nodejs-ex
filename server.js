@@ -92,9 +92,14 @@ app.get('/', function (req, res) {
 function switchLightAquarium(value){
   console.log('Switching Aquarium Light to ', value);
 
-  request('http://192.168.224.109/relay?state='+ value,function(err){
-    if(err){
-      console.error('error switching Aquarium',err);
+  // baseURL: http://192.168.224.109
+  // 3scaleURL: http://apicast-route-2-sensor-monitor.apps.rhlab.ch
+  var url = 'http://apicast-route-2-sensor-monitor.apps.rhlab.ch';
+  var userKey = '08e5d05247abc78871cf3e715fcfb6fb';
+
+  request(url+'/relay?user_key='+userKey+'&state='+ value,function(err, response){
+    if(err || response.statusCode > 299){
+      console.error('error switching Aquarium',err || response.body);
     } else {
       console.log('turned Aquarium switch to ', value);
     }
@@ -105,11 +110,14 @@ function switchLightAquarium(value){
 function switchLightIBM(value){
   console.log('Switching IBM Light to ', value);
 
-  // 3scale URL: https://iot-switch-1-2445581831540.staging.gw.apicast.io
   // base URL: http://192.168.224.110
-  request('https://iot-switch-1-2445581831540.staging.gw.apicast.io/relay?state='+ value,function(err, response){
-    if(err || response.status > 299){
-      console.error('error switching IBM',err || response);
+  // 3scale URL: http://apicast-sensor-monitor.apps.rhlab.ch
+  var url = 'http://apicast-sensor-monitor.apps.rhlab.ch';
+  var userKey = '469880d3292e52e000f5d6a14bf8ef4b';
+
+  request(url+'/relay?user_key='+userKey+'&state='+ value,function(err, response){
+    if(err || response.statusCode > 299){
+      console.error('error switching IBM',err || response.body);
     } else {
       console.log('turned IBM switch to ', value);
     }
@@ -160,6 +168,7 @@ app.post('/datain',function(req,res){
   res.json({status:'ok'});
 
   try{
+    // body = req.body;
     body = req.body;
   } catch(err){
     console.error('Error parsing JSON:',body, err);
