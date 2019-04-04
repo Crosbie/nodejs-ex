@@ -161,8 +161,8 @@ app.post('/test',function(req,res){
 app.post('/datain',function(req,res){
   console.log('data-in',req.body);
 
-  var rawPayload = req.body&&req.body.payload || 'AQmpCVAEEQ==';
-  var site = req.body&&req.body.dev_id;
+  var rawPayload = req.body&&req.body.raw || 'AQmpCVAEEQ==';
+  var site = req.body&&req.body.device_id;
   var data = base64toHEX(rawPayload);
 
   /*  example data: 01 09 A9 09 50 04 11
@@ -225,31 +225,31 @@ app.post('/datain',function(req,res){
 // URL
 // https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=2m
 
-function fetchData(){
-  console.log('Fetching API Data...');
-  request({
-    method: 'GET',
-    url: 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=1m',
-    headers: {
-      Authorization: 'key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og'
-    }
-  },function(err,response,body){
-    if(err || response.status > 299){
-      console.error('Error fetching API data',err||body);
-    } else {
-      console.log('body',body);
+// function fetchData(){
+//   console.log('Fetching API Data...');
+//   request({
+//     method: 'GET',
+//     url: 'https://tdpilot.data.thethingsnetwork.org/api/v2/query?last=1m',
+//     headers: {
+//       Authorization: 'key ttn-account-v2.rNLvUstCZYO3NH6tCOOwNqoWdo5mPhf6OcSXfVP00Og'
+//     }
+//   },function(err,response,body){
+//     if(err || response.status > 299){
+//       console.error('Error fetching API data',err||body);
+//     } else {
+//       console.log('body',body);
 
-      body = body || [];
+//       body = body || [];
 
-      request({
-        url: 'https://i-data-in-route-sensor-monitor.apps.rhlab.ch/webhook/LvC6KnepKDHN3OWzCiGqctR6CPi7vb9AFPJqL3NTRGGd7ZxZ5P',
-        body: body,
-        rejectUnauthorized:false
-      },function(fuseErr){
-        if(fuseErr){
-          console.error('Error sending data to Fuse',fuseErr);
-        }
-      });
+//       request({
+//         url: 'https://i-data-in-route-sensor-monitor.apps.rhlab.ch/webhook/LvC6KnepKDHN3OWzCiGqctR6CPi7vb9AFPJqL3NTRGGd7ZxZ5P',
+//         body: body,
+//         rejectUnauthorized:false
+//       },function(fuseErr){
+//         if(fuseErr){
+//           console.error('Error sending data to Fuse',fuseErr);
+//         }
+//       });
 
       // try{
       //   body = JSON.parse(body);
@@ -263,9 +263,9 @@ function fetchData(){
       //     return item;
       //   }
       // })
-    }
-  })
-}
+//     }
+//   })
+// }
 
 function processData(data){
    console.log('processData',data);
@@ -327,24 +327,24 @@ function processData(data){
 
 
 // Fire Cron Job every minute
-new CronJob('* * * * *', fetchData).start();
+// new CronJob('* * * * *', fetchData).start();
 
-app.get('/pagecount', function (req, res) {
-  // try to initialize the db on every request if it's not already
-  // initialized.
-  if (!db) {
-    initDb(function(err){
-      console.error('error connecting to mongo',err);
-    });
-  }
-  if (db) {
-    db.collection('counts').count(function(err, count ){
-      res.send('{ pageCount: ' + count + '}');
-    });
-  } else {
-    res.send('{ pageCount: -1 }');
-  }
-});
+// app.get('/pagecount', function (req, res) {
+//   // try to initialize the db on every request if it's not already
+//   // initialized.
+//   if (!db) {
+//     initDb(function(err){
+//       console.error('error connecting to mongo',err);
+//     });
+//   }
+//   if (db) {
+//     db.collection('counts').count(function(err, count ){
+//       res.send('{ pageCount: ' + count + '}');
+//     });
+//   } else {
+//     res.send('{ pageCount: -1 }');
+//   }
+// });
 
 // error handling
 app.use(function(err, req, res, next){
