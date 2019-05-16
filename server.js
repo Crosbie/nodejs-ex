@@ -8,13 +8,16 @@ var express = require('express'),
     _ = require('underscore'),
     atob = require("atob"),
     request = require('request'),
-    CronJob = require('cron').CronJob;
+    CronJob = require('cron').CronJob,
+    ibmOffice = {},
+    siteAquarium = {};
 
 Object.assign=require('object-assign')
 
 app.engine('html', require('ejs').renderFile);
 app.use(morgan('combined'));
 app.use(bodyParser.json());
+app.use(express.static('public'))
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 
@@ -80,11 +83,41 @@ app.get('/', function (req, res) {
     // Create a document with request IP and current time of request
     col.insert({ip: req.ip, date: Date.now()});
     col.count(function(err, count){
-      res.render('index.html', { pageCountMessage : count, dbInfo: dbDetails });
+      res.render('index.html', {
+        pageCountMessage : count,
+        dbInfo: dbDetails
+      });
     });
   } else {
     res.render('index.html', { pageCountMessage : null});
   }
+});
+
+var testValue = 1;
+app.get('/populate', function (req,res){
+  ibmOffice = {
+    ts: 'DUMMY',
+    co2: 1200,
+    cAlert: testValue
+  };
+  siteAquarium = {
+    ts: 'DUMMY',
+    co2: 1100,
+    cAlert: 1
+  }
+  res.json({ibmOffice: ibmOffice, siteAquarium: siteAquarium});
+})
+
+app.get('/break',function(req,res){
+  testValue = 2;
+  switchLightIBM(1);
+  res.end();
+});
+
+app.get('/fix',function(req,res){
+  testValue = 1;
+  switchLightIBM(0);
+  res.end();
 });
 
 
@@ -219,6 +252,7 @@ function processData(data){
   console.log('data-out', obj);
 
   if(site === 'officeibm'){
+    ibmOffice = {ts: new Date(), co2:co2, cAlert:cAlert}; // set global for html view
     if(cAlert === 2){
       // turn on light
       switchLightIBM(1);
@@ -229,6 +263,7 @@ function processData(data){
   }
 
   if(site === 'siteaquarium'){
+    siteAquarium = {ts: new Date(), co2:co2, cAlert:cAlert}; // set global for html view
     if(cAlert === 2){
       // turn on light
       switchLightAquarium(1);
@@ -237,7 +272,6 @@ function processData(data){
       switchLightAquarium(0);
     }
   }
-
 }
 
 // error handling
