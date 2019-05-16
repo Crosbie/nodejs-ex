@@ -94,17 +94,17 @@ app.get('/', function (req, res) {
 });
 
 var testValue = 1;
-app.get('/populate', function (req,res){
-  ibmOffice = {
+ibmOffice = {
     ts: 'DUMMY',
     co2: 1200,
     cAlert: testValue
   };
-  siteAquarium = {
+siteAquarium = {
     ts: 'DUMMY',
     co2: 1100,
     cAlert: 1
   }
+app.get('/populate', function (req,res){
   res.json({ibmOffice: ibmOffice, siteAquarium: siteAquarium});
 })
 
