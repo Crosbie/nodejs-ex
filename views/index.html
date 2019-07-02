@@ -221,7 +221,12 @@ img.bad {
 
 .data-block {
 	text-align: center;
+	transition: opacity .6s;
 
+}
+
+.new {
+  opacity: 0.2;
 }
 
 </style>
@@ -238,7 +243,8 @@ setInterval(function(){
 		$('#aquariumData')[0].innerHTML = JSON.stringify(data.siteAquarium);
 
 		if(data.ibmOffice.cAlert === 2){
-			$('#ibmLight img').addClass('bad');
+			$('#ibmLight img').addClass('bad new');
+			setTimeout(function(){$('#ibmLight img').removeClass('new');},1500);
 		} else if(data.ibmOffice.cAlert !== 2){
 			$('#ibmLight img').removeClass('bad');
 		}

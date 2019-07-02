@@ -109,12 +109,14 @@ app.get('/populate', function (req,res){
 })
 
 app.get('/break',function(req,res){
+  console.log('\n\nTEST BREAK IBM OFFICE\n\n');
   testValue = 2;
   switchLightIBM(1);
   res.end();
 });
 
 app.get('/fix',function(req,res){
+  console.log('\n\nTEST FIX IBM OFFICE\n\n');
   testValue = 1;
   switchLightIBM(0);
   res.end();
