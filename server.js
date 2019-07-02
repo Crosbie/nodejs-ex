@@ -111,6 +111,11 @@ app.get('/populate', function (req,res){
 app.get('/break',function(req,res){
   console.log('\n\nTEST BREAK IBM OFFICE\n\n');
   testValue = 2;
+  ibmOffice = {
+    ts: 'DUMMY',
+    co2: 1200,
+    cAlert: testValue
+  };
   switchLightIBM(1);
   res.end();
 });
@@ -118,6 +123,11 @@ app.get('/break',function(req,res){
 app.get('/fix',function(req,res){
   console.log('\n\nTEST FIX IBM OFFICE\n\n');
   testValue = 1;
+  ibmOffice = {
+    ts: 'DUMMY',
+    co2: 700,
+    cAlert: testValue
+  };
   switchLightIBM(0);
   res.end();
 });
